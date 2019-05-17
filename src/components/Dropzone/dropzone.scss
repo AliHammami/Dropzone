@@ -1,0 +1,30 @@
+.dropzone {
+  height: 10em;
+  width: 15em;
+  background-color: #212529;
+  border: 0.2em dashed #4B545D;
+  margin-left: 15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+p{
+  border-radius: 5%;
+  height: 4em;
+  width: 15em;
+  font-size: 0.6em;
+  background-color: #15191C;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlight {
+  background-color: #778398;
+}
+
+.fileInput {
+  display: none;
+}
