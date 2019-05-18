@@ -10,6 +10,7 @@ class Dropzone extends Component {
       highlight: false,
       fileName: '',
       message: '',
+      total: '',
     };
     this.onDragOver = this.onDragOver.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
@@ -49,10 +50,22 @@ class Dropzone extends Component {
     }).catch((err) => {
       console.log(err.response);
     });
+
+    axios({
+      url: 'http://hapi.fhir.org/baseDstu3/Binary?_summary=count',
+      method: 'GET',
+    }).then((res) => {
+      this.setState({ total: res.data.total });
+    });
   }
 
   render() {
-    const { fileName, highlight, message } = this.state;
+    const {
+      fileName,
+      highlight,
+      message,
+      total,
+    } = this.state;
     const noFileName = fileName === '';
     return (
       <div>
@@ -76,6 +89,10 @@ class Dropzone extends Component {
         <div>
           {message ? (
             <p className="uploadSuccess">{message}</p>
+          ) : ''
+          }
+          {total ? (
+            <p className="filesTotal">The number of files currently in the server is {total}</p>
           ) : ''
           }
         </div>
