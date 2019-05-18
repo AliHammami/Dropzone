@@ -9,7 +9,7 @@
   justify-content: center;
 }
 
-p{
+.uploadFile{
   border-radius: 5%;
   height: 4em;
   width: 15em;
@@ -27,4 +27,17 @@ p{
 
 .fileInput {
   display: none;
+}
+
+.uploadSuccess{
+  height: 4em;
+  width: 15em;
+  font-size: 0.6em;
+  color: #ffffff;
+  background-color: #28A745;
+  margin: 2em 0em 0 30em;
+  padding: 0.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
