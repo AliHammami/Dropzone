@@ -11,6 +11,7 @@ class Dropzone extends Component {
       fileName: '',
       message: '',
       total: '',
+      file: '',
     };
     this.onDragOver = this.onDragOver.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
@@ -18,6 +19,7 @@ class Dropzone extends Component {
   }
 
   onDragOver(event) {
+    // Prevent default behavior
     event.preventDefault();
     this.setState({ highlight: true });
   }
@@ -26,38 +28,51 @@ class Dropzone extends Component {
     this.setState({ highlight: false });
   }
 
-  onDrop(event) {
+  /* Asynchronous function to send the file when we drop it and then get the
+  total of file available in the server
+  */
+  async onDrop(event) {
     event.preventDefault();
+    // Loop that use DataTransfer interface to access the file and get the file name
     for (let i = 0; i < event.dataTransfer.files.length; i += 1) {
-      const file = event.dataTransfer.files[i].name;
+      const file = event.dataTransfer.files[i];
+      const fileName = event.dataTransfer.files[i].name;
       // console.log("... file[" + i + "].name = " + file);
       this.setState({
-        fileName: file,
+        file,
+        fileName,
         highlight: false,
       });
     }
     const file = this.state.file;
+    // Create an empty formData object
     const formData = new FormData();
-
+    // Create a key/value pair, the file that we send is the value
     formData.append('file', file);
-    axios({
-      url: 'https://fhirtest.uhn.ca/baseDstu3/Binary',
-      method: 'POST',
-      data: formData,
-    }).then((res) => {
-      console.log(res);
-      this.setState({ message: 'File has been successfully uploaded' });
-    }).catch((err) => {
-      console.log(err.response);
-    });
-
-    axios({
-      url: 'http://hapi.fhir.org/baseDstu3/Binary?_summary=count',
-      method: 'GET',
-    }).then((res) => {
-      this.setState({ total: res.data.total });
-    });
+    try {
+      // First we send the file
+      await axios({
+        url: 'https://fhirtest.uhn.ca/baseDstu3/Binary',
+        method: 'POST',
+        data: formData,
+      }).then(() => {
+        this.setState({ message: 'File has been successfully uploaded' });
+      }).catch((err) => {
+        console.log(err.response);
+      });
+      // And then we check the total number of file available in the server
+      await axios({
+        url: 'http://hapi.fhir.org/baseDstu3/Binary?_summary=count',
+        method: 'GET',
+      }).then((res) => {
+        this.setState({ total: res.data.total });
+      });
+    }
+    catch (error) {
+      console.log(error);
+    }
   }
+
 
   render() {
     const {
@@ -66,7 +81,8 @@ class Dropzone extends Component {
       message,
       total,
     } = this.state;
-    const noFileName = fileName === '';
+
+    const empty = '';
     return (
       <div>
         <div
@@ -80,7 +96,7 @@ class Dropzone extends Component {
             className="fileInput"
             type="file"
           />
-          {noFileName ? (
+          {!fileName ? (
             <p className="uploadFile">Drop file to upload</p>
           ) : (
             <p className="uploadFile">{fileName}</p>
@@ -89,11 +105,11 @@ class Dropzone extends Component {
         <div>
           {message ? (
             <p className="uploadSuccess">{message}</p>
-          ) : ''
+          ) : empty
           }
           {total ? (
             <p className="filesTotal">The number of files currently in the server is {total}</p>
-          ) : ''
+          ) : empty
           }
         </div>
       </div>
