@@ -41,12 +41,14 @@
     "build:dev:win": "set NODE_ENV=development && webpack",
     "build:prod": "NODE_ENV=production webpack --mode production",
     "build:prod:win": "set NODE_ENV=production && webpack --mode production",
-    "save-deps": "rm -rf node_modules && npm update --save && npm update --save-dev"
+    "save-deps": "rm -rf node_modules && npm update --save && npm update --save-dev",
+    "electron": "electron ."
   },
   "dependencies": {
     "@babel/polyfill": "*",
     "axios": "*",
     "classnames": "*",
+    "electron": "^5.0.1",
     "prop-types": "*",
     "react": "*",
     "react-dom": "*",
