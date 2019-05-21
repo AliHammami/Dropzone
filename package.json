@@ -47,8 +47,10 @@
   "dependencies": {
     "@babel/polyfill": "*",
     "axios": "*",
+    "chokidar": "^3.0.0",
     "classnames": "*",
     "electron": "^5.0.1",
+    "fs": "0.0.1-security",
     "prop-types": "*",
     "react": "*",
     "react-dom": "*",

@@ -3,6 +3,8 @@ import axios from 'axios';
 
 import './dropzone.scss';
 
+// const { ipcRenderer } = window.require('electron');
+
 class Dropzone extends Component {
   constructor(props) {
     super(props);
@@ -12,23 +14,26 @@ class Dropzone extends Component {
       message: '',
       total: '',
       file: '',
+      errorMessage: '',
     };
     this.onDragOver = this.onDragOver.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
     this.onDrop = this.onDrop.bind(this);
   }
 
+  // When we drag the file on the dropzone, the backgroundcolor of the dropzone change
   onDragOver(event) {
     // Prevent default behavior
     event.preventDefault();
     this.setState({ highlight: true });
   }
 
+  // When we leave, the backgroundcolor of the dropzone back to normal
   onDragLeave() {
     this.setState({ highlight: false });
   }
 
-  /* Asynchronous function to send the file when we drop it and then get the
+  /* Asynchronous function that send the file when we drop it and then get the
   total of file available in the server
   */
   async onDrop(event) {
@@ -37,17 +42,35 @@ class Dropzone extends Component {
     for (let i = 0; i < event.dataTransfer.files.length; i += 1) {
       const file = event.dataTransfer.files[i];
       const fileName = event.dataTransfer.files[i].name;
-      // console.log("... file[" + i + "].name = " + file);
+      const extension = fileName.substr((fileName.lastIndexOf('.') + 1));
+      // If the file extension is not pdf an error message appear
+      if (!/(pdf)$/ig.test(extension)) {
+        this.setState({
+          file: null,
+          fileName: null,
+          errorMessage: 'Please send PDF a file.',
+        });
+        return;
+      }
+      // if the file size is bigger thant 2mo an error message appear
+      if (file.size >= 2000000) {
+        this.setState({
+          file: null,
+          fileName: null,
+          errorMessage: 'The file is too big, it should be under 2mo.',
+        });
+        return;
+      }
       this.setState({
         file,
         fileName,
         highlight: false,
       });
     }
-    const file = this.state.file;
+    const file = this.state.file;      
     // Create an empty formData object
     const formData = new FormData();
-    // Create a key/value pair, the file that we send is the value
+    // Create a key/value pair. The file that we send is the value
     formData.append('file', file);
     try {
       // First we send the file
@@ -80,6 +103,7 @@ class Dropzone extends Component {
       highlight,
       message,
       total,
+      errorMessage,
     } = this.state;
 
     const empty = '';
@@ -109,6 +133,12 @@ class Dropzone extends Component {
           }
           {total ? (
             <p className="filesTotal">The number of files currently in the server is {total}</p>
+          ) : empty
+          }
+        </div>
+        <div>
+          {errorMessage ? (
+            <p className="errorMessage">{errorMessage}</p>
           ) : empty
           }
         </div>
