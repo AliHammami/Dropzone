@@ -79,7 +79,10 @@ class Dropzone extends Component {
         method: 'POST',
         data: formData,
       }).then(() => {
-        this.setState({ message: 'File has been successfully uploaded' });
+        this.setState({
+          message: 'File has been successfully uploaded',
+          errorMessage: null,
+        });
       }).catch((err) => {
         console.log(err.response);
       });
