@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import isElectron from 'is-electron';
 
 import './dropzone.scss';
 
@@ -19,6 +20,45 @@ class Dropzone extends Component {
     this.onDragOver = this.onDragOver.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
     this.onDrop = this.onDrop.bind(this);
+  }
+
+  componentDidMount() {
+    // check if electron is running
+    if (isElectron()) {
+      // ipcRenderer is an event that allow you to listen a channel
+      window.ipcRenderer.on('pong', () => {
+        this.setState({ ipc: true });
+      });
+      // listening the errorExtention channel
+      window.ipcRenderer.on('errorExtension', () => {
+        this.setState({
+          file: null,
+          fileName: null,
+          errorMessage: 'Please send PDF a file.',
+        });
+      });
+      // listening the errorSize channel
+      window.ipcRenderer.on('errorSize', () => {
+        this.setState({
+          file: null,
+          fileName: null,
+          errorMessage: 'The file is too big, it should be under 2mo.',
+        });
+      });
+      // listening the fileUpload channel to get the file uploaded and the fileName
+      window.ipcRenderer.on('fileUpload', (event, file, fileName) => {
+        this.setState({
+          message: 'File has been successfully uploaded',
+          file,
+          fileName,
+          errorMessage: null,
+        });
+      });
+      // listening the getTotal channel to get the total of files in the server
+      window.ipcRenderer.on('getTotal', (event, total) => {
+        this.setState({ total });
+      });
+    }
   }
 
   // When we drag the file on the dropzone, the backgroundcolor of the dropzone change
